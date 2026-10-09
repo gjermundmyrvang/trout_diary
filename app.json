@@ -10,7 +10,11 @@
     "ios": {
       "icon": {
         "light": "./assets/images/iconLight.png",
-        "dark": ".assets/images/iconDark.png"
+        "dark": "./assets/images/iconDark.png"
+      },
+      "bundleIdentifier": "com.gjerry10.troutdiary",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
       }
     },
     "android": {
@@ -20,7 +24,8 @@
         "backgroundImage": "./assets/images/android-icon-background.png",
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "permissions": ["android.permission.RECORD_AUDIO"]
     },
     "web": {
       "output": "static",
@@ -45,6 +50,12 @@
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "c2283011-0b18-40bc-a14b-5d84e05cd371"
+      }
     }
   }
 }
