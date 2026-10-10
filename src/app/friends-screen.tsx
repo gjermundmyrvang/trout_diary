@@ -12,6 +12,7 @@ import { PressableScale } from "pressto";
 import { useCallback, useEffect, useState } from "react";
 import {
   ActivityIndicator,
+  Alert,
   RefreshControl,
   ScrollView,
   View,
@@ -84,12 +85,14 @@ export default function FriendsScreen() {
 
   async function handleSendRequest(userId: string) {
     sendFriendRequest(userId);
+    Alert.alert("Request sent!");
     onRefresh();
     router.back();
   }
 
   async function handleAcceptFriend(userId: string) {
     await handleAcceptRequest(userId);
+    Alert.alert("Request accepted!");
     onRefresh();
     router.back();
   }
