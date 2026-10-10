@@ -41,8 +41,11 @@ export default function CatchSocial({
   const [comments, setComments] = useState<Comment[]>([]);
   const [showComments, setShowComments] = useState(false);
 
-  const commentText = useCommentStore((state) => state.comment);
+  const commentText = useCommentStore(
+    (state) => state.commentsByCatchId[catchId] ?? "",
+  );
   const setCommentText = useCommentStore((state) => state.setCommentText);
+  const clearCommentText = useCommentStore((state) => state.clearCommentText);
 
   const [loading, setLoading] = useState(true);
   const [savingLike, setSavingLike] = useState(false);
@@ -127,7 +130,7 @@ export default function CatchSocial({
 
       await addCatchComment(catchId, username, body);
 
-      setCommentText("");
+      clearCommentText(catchId);
       await loadData();
     } catch (error) {
       Alert.alert(
@@ -221,9 +224,17 @@ export default function CatchSocial({
                 }}
               >
                 <View style={{ flex: 1 }}>
-                  <InkText variant="sectionLabel" style={{ marginBottom: 8 }}>
-                    From: {comment.comment_by}
-                  </InkText>
+                  <View
+                    style={{
+                      flexDirection: "row",
+                      gap: 6,
+                    }}
+                  >
+                    <Ionicons name="person" size={16} />
+                    <InkText variant="sectionLabel" style={{ marginBottom: 8 }}>
+                      {comment.comment_by}
+                    </InkText>
+                  </View>
 
                   <InkText variant="caption">{comment.body}</InkText>
                 </View>
@@ -253,28 +264,52 @@ export default function CatchSocial({
                 style={{
                   gap: 8,
                   paddingTop: 8,
+                  marginTop: 8,
                   borderTopWidth: 1,
                   borderColor: "#ccc",
                 }}
               >
-                <InkText variant="sectionLabel">Your comment:</InkText>
-                <InkText variant="caption">{commentText}</InkText>
+                <InkText variant="sectionLabel" style={{ fontSize: 16 }}>
+                  DRAFT:
+                </InkText>
+                <InkText variant="caption">"{commentText}"</InkText>
 
-                <PressableScale
-                  onPress={handleSendComment}
-                  disabled={sendingComment}
-                  accessibilityRole="button"
-                  accessibilityLabel="Send comment"
-                  style={{
-                    backgroundColor: sendingComment ? "#ccc" : "#000",
-                    paddingHorizontal: 14,
-                    paddingVertical: 11,
-                  }}
-                >
-                  <InkText variant="button" style={{ color: "white" }}>
-                    {sendingComment ? "..." : "Ship it"}
-                  </InkText>
-                </PressableScale>
+                <View style={{ flexDirection: "row" }}>
+                  <PressableScale
+                    onPress={handleSendComment}
+                    disabled={sendingComment}
+                    accessibilityRole="button"
+                    accessibilityLabel="Send comment"
+                    style={{
+                      flex: 1,
+                      backgroundColor: sendingComment ? "#ccc" : "#000",
+                      paddingHorizontal: 14,
+                      paddingVertical: 11,
+                    }}
+                  >
+                    <InkText
+                      variant="button"
+                      style={{ color: "white", textAlign: "center" }}
+                    >
+                      {sendingComment ? "..." : "SHIP IT"}
+                    </InkText>
+                  </PressableScale>
+                  <PressableScale
+                    onPress={() => clearCommentText(catchId)}
+                    accessibilityRole="button"
+                    accessibilityLabel="Discard comment"
+                    style={{
+                      flex: 1,
+                      backgroundColor: "#a00000",
+                      paddingHorizontal: 14,
+                      paddingVertical: 11,
+                    }}
+                  >
+                    <InkText variant="button" style={{ textAlign: "center" }}>
+                      DISCARD
+                    </InkText>
+                  </PressableScale>
+                </View>
               </View>
             ) : (
               <PressableScale
@@ -284,7 +319,12 @@ export default function CatchSocial({
                   paddingHorizontal: 14,
                   paddingVertical: 11,
                 }}
-                onPress={() => router.push("/comment-screen")}
+                onPress={() =>
+                  router.push({
+                    pathname: "/comment-screen",
+                    params: { catchId },
+                  })
+                }
               >
                 <InkText variant="button" style={{ textAlign: "center" }}>
                   WRITE COMMENT

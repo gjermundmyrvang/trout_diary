@@ -49,6 +49,9 @@ function RootNavigator() {
             presentation: "formSheet",
             sheetAllowedDetents: "fitToContents",
             sheetGrabberVisible: true,
+            contentStyle: {
+              backgroundColor: "#FAFAFA",
+            },
           }}
         />
       </Stack.Protected>
@@ -61,6 +64,9 @@ function RootNavigator() {
             presentation: "formSheet",
             sheetAllowedDetents: "fitToContents",
             sheetGrabberVisible: true,
+            contentStyle: {
+              backgroundColor: "#FAFAFA",
+            },
           }}
         />
       </Stack.Protected>
@@ -73,6 +79,9 @@ function RootNavigator() {
             presentation: "formSheet",
             sheetAllowedDetents: "fitToContents",
             sheetGrabberVisible: true,
+            contentStyle: {
+              backgroundColor: "#FAFAFA",
+            },
           }}
         />
       </Stack.Protected>
