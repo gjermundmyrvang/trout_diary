@@ -1,6 +1,7 @@
 import { fishSpecies } from "@/constants/fishSpecies";
 import { FeedCatchWithImage } from "@/logic/feed";
 import { Image, ImageSourcePropType, View } from "react-native";
+import { CatchStats } from "./CatchStats";
 import { InkText } from "./InkText";
 
 type CatchCardProps = {
@@ -119,11 +120,8 @@ export default function CatchCard({ catchItem }: CatchCardProps) {
           </InkText>
         )}
 
-        {catchItem.weight_grams !== null && (
-          <InkText variant="caption" style={{ fontSize: 20, lineHeight: 30 }}>
-            {catchItem.weight_grams} G
-            {catchItem.length_cm !== null ? ` - ${catchItem.length_cm} CM` : ""}
-          </InkText>
+        {catchItem.length_cm !== null && catchItem.weight_grams !== null && (
+          <CatchStats catchItem={catchItem} />
         )}
 
         {catchItem.description && (
