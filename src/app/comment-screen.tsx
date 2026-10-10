@@ -1,24 +1,32 @@
 import Field from "@/components/Field";
 import { InkText } from "@/components/InkText";
 import { useCommentStore } from "@/logic/useCommentStore";
-import { router } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import { PressableScale } from "pressto";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { View } from "react-native";
 import { KeyboardAvoidingView } from "react-native-keyboard-controller";
 
 export default function CommentScreen() {
-  const [comment, setComment] = useState("");
+  const { catchId } = useLocalSearchParams<{ catchId?: string }>();
+  const initialComment = useCommentStore((state) =>
+    catchId ? (state.commentsByCatchId[catchId] ?? "") : "",
+  );
+  const [comment, setComment] = useState(initialComment);
   const setCommentText = useCommentStore((state) => state.setCommentText);
+
+  useEffect(() => {
+    setComment(initialComment);
+  }, [initialComment]);
 
   function handleWriteComment() {
     const body = comment.trim();
 
-    if (!body) {
+    if (!body || !catchId) {
       return;
     }
 
-    setCommentText(comment);
+    setCommentText(catchId, comment);
     router.back();
   }
 
