@@ -1,6 +1,5 @@
 import { typography } from "@/constants/typography";
 import { FeedCatch } from "@/logic/feed";
-import Ionicons from "@expo/vector-icons/Ionicons";
 import { Text, View } from "react-native";
 import Svg, { Path, Text as SvgText } from "react-native-svg";
 import { InkText } from "./InkText";
@@ -46,27 +45,17 @@ export function CatchStats({ catchItem }: CatchStatsProps) {
           </Svg>
         </View>
         {g != null && (
-          <View
+          <InkText
+            variant="caption"
+            numberOfLines={1}
+            adjustsFontSizeToFit
             style={{
-              flexDirection: "row",
-              alignItems: "center",
-              justifyContent: "flex-end",
-              gap: 6,
+              fontSize: 22,
+              lineHeight: 40,
             }}
           >
-            <Ionicons name="scale-sharp" size={22} />
-            <InkText
-              variant="caption"
-              numberOfLines={1}
-              adjustsFontSizeToFit
-              style={{
-                fontSize: 22,
-                lineHeight: 40,
-              }}
-            >
-              {g} g
-            </InkText>
-          </View>
+            {g} g
+          </InkText>
         )}
       </View>
 
