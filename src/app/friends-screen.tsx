@@ -3,9 +3,11 @@ import Field from "@/components/Field";
 import { InkText } from "@/components/InkText";
 import {
   fetchFriendSearchResults,
+  FriendRequest,
+  FriendSearchResult,
   getFriendRequest,
   handleAcceptRequest,
-  sendFriendRequest,
+  sendFriendRequest
 } from "@/logic/friends";
 import { router } from "expo-router";
 import { PressableScale } from "pressto";
@@ -18,25 +20,6 @@ import {
   View,
 } from "react-native";
 import { KeyboardAvoidingView } from "react-native-keyboard-controller";
-
-type FriendshipStatus = "pending" | "accepted";
-
-type FriendSearchResult = {
-  id: string;
-  username: string;
-  avatar_path: string | null;
-  friendship_status: FriendshipStatus | null;
-  requested_by: string | null;
-};
-
-type FriendRequest = {
-  friendship_id: string;
-  user_id: string;
-  username: string;
-  display_name: string | null;
-  avatar_path: string | null;
-  requested_at: string;
-};
 
 export default function FriendsScreen() {
   const [search, setSearch] = useState("");
