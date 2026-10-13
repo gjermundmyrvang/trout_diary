@@ -1,11 +1,9 @@
 import CatchCard from "@/components/CatchCard";
-import CatchSocial from "@/components/CatchSocial";
 import FAB from "@/components/FAB";
 import { InkText } from "@/components/InkText";
 import { getCatchImageUrl } from "@/logic/catchImages";
 import { FeedCatch, FeedCatchWithImage, getFeedCatches } from "@/logic/feed";
-import { getMyProfile } from "@/logic/profiles";
-import { router } from "expo-router";
+import { router, useFocusEffect } from "expo-router";
 import { useCallback, useEffect, useState } from "react";
 import {
   ActivityIndicator,
@@ -15,26 +13,19 @@ import {
 } from "react-native";
 
 export default function FeedScreen() {
-  const [username, setUsername] = useState<string | null>(null);
   const [feed, setFeed] = useState<FeedCatchWithImage[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [refreshing, setRefreshing] = useState(false);
-  const [socialRefreshKey, setSocialRefreshKey] = useState(0);
 
-  async function loadProfile() {
-    const loadedProfile = await getMyProfile();
-    if (loadedProfile) {
-      setUsername(loadedProfile.username);
-    }
-  }
-
-  async function loadFeed() {
+  const loadFeed = useCallback(async () => {
     try {
-      const catches = (await getFeedCatches()) as FeedCatch[];
+      setErrorMessage(null);
+
+      const catches = await getFeedCatches();
 
       const catchesWithImages = await Promise.all(
-        (catches ?? []).map(async (catchItem) => ({
+        (catches as FeedCatch[]).map(async (catchItem) => ({
           ...catchItem,
           imageUrl: await getCatchImageUrl(catchItem.image_path),
         })),
@@ -45,22 +36,26 @@ export default function FeedScreen() {
       const message =
         error instanceof Error ? error.message : "Could not load feed.";
 
-      console.error(error);
+      console.error("Failed to load feed:", error);
       setErrorMessage(message);
     } finally {
       setIsLoading(false);
     }
-  }
+  }, []);
+
+  useFocusEffect(
+    useCallback(() => {
+      void loadFeed();
+    }, [loadFeed]),
+  );
 
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
     await loadFeed();
-    setSocialRefreshKey((current) => current + 1);
     setRefreshing(false);
-  }, []);
+  }, [loadFeed]);
 
   useEffect(() => {
-    loadProfile();
     loadFeed();
   }, []);
 
@@ -92,7 +87,6 @@ export default function FeedScreen() {
         style={{ flex: 1 }}
         contentContainerStyle={{
           gap: 16,
-          paddingHorizontal: 20,
           paddingTop: 56,
           paddingBottom: 120,
         }}
@@ -107,13 +101,15 @@ export default function FeedScreen() {
           />
         }
       >
-        <InkText variant="screenTitle">RECENT CATCHES</InkText>
+        <InkText variant="screenTitle" style={{ paddingHorizontal: 16 }}>
+          RECENT CATCHES
+        </InkText>
         {feed.length === 0 && (
           <View
             style={{
               alignItems: "center",
               gap: 8,
-              paddingVertical: 48,
+              paddingHorizontal: 16,
             }}
           >
             <InkText variant="catchName">NO CATCHES YET</InkText>
@@ -124,13 +120,15 @@ export default function FeedScreen() {
         )}
 
         {feed.map((catchItem) => (
-          <View key={catchItem.id}>
+          <View
+            key={catchItem.id}
+            style={{
+              paddingTop: 16,
+              paddingBottom: 16,
+              borderBottomWidth: 8,
+            }}
+          >
             <CatchCard catchItem={catchItem} />
-            <CatchSocial
-              catchId={catchItem.id}
-              username={username}
-              refreshKey={socialRefreshKey}
-            />
           </View>
         ))}
       </ScrollView>
