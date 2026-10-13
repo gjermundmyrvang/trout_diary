@@ -12,6 +12,7 @@ export type FeedCatch = {
   description: string | null;
   visibility: "private" | "friends";
   caught_at: string;
+  avatar_path: string | null;
 };
 
 export type FeedCatchWithImage = FeedCatch & {
@@ -20,6 +21,20 @@ export type FeedCatchWithImage = FeedCatch & {
 
 export async function getFeedCatches() {
   const { data, error } = await supabase.rpc("get_feed_catches");
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return data;
+}
+
+export async function getFeedCatchById(catchId: string) {
+  const { data, error } = await supabase
+    .from("catches")
+    .select("*")
+    .eq("id", catchId)
+    .maybeSingle();
 
   if (error) {
     throw new Error(error.message);
