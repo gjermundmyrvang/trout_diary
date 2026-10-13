@@ -1,3 +1,4 @@
+import { getMyProfile, Profile } from "@/logic/profiles";
 import { supabase } from "@/supabase/client";
 import type { Session, User } from "@supabase/supabase-js";
 import {
@@ -13,6 +14,7 @@ type AuthContextValue = {
   session: Session | null;
   isLoading: boolean;
   user: User | null;
+  profile: Profile | null;
   signInWithOTP: (email: string) => Promise<void>;
   signInUsingPassword: (email: string, password: string) => Promise<void>;
   verifyOTP: (email: string, code: string) => Promise<void>;
@@ -33,7 +35,19 @@ export function useSession(): AuthContextValue {
 
 export function SessionProvider({ children }: PropsWithChildren) {
   const [session, setSession] = useState<Session | null>(null);
+  const [profile, setProfile] = useState<Profile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+
+  async function loadProfile() {
+    try {
+      const loadedProfile = await getMyProfile();
+      setProfile(loadedProfile);
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : "Could not load profile.";
+      throw new Error(message);
+    }
+  }
 
   useEffect(() => {
     let isMounted = true;
@@ -47,6 +61,7 @@ export function SessionProvider({ children }: PropsWithChildren) {
 
       if (isMounted) {
         setSession(data.session);
+        loadProfile();
         setIsLoading(false);
       }
     }
@@ -119,6 +134,7 @@ export function SessionProvider({ children }: PropsWithChildren) {
       session,
       isLoading,
       user: session?.user ?? null,
+      profile: profile ?? null,
       signInWithOTP,
       signInUsingPassword,
       verifyOTP,
