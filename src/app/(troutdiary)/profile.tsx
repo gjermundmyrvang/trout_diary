@@ -1,10 +1,9 @@
 import { Avatar } from "@/components/Avatar";
 import Field from "@/components/Field";
 import { InkText } from "@/components/InkText";
+import { Friendship, getFriends, handleDeleteFriend } from "@/logic/friends";
 import {
   deleteMyAccount,
-  getMyProfile,
-  type Profile,
   updateAvatarPath,
   updateProfileWithPassword,
   updateUserName,
@@ -13,27 +12,45 @@ import { useSession } from "@/providers/AuthProvider";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import * as ImagePicker from "expo-image-picker";
 import { PressableScale } from "pressto";
-import { useEffect, useState } from "react";
-import { ActivityIndicator, Alert, View } from "react-native";
+import { useEffect, useMemo, useState } from "react";
+import { ActivityIndicator, Alert, ScrollView, View } from "react-native";
 import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
 
+const STATUS_COLORS = {
+  accepted: "#575757",
+  declined: "#bd0000",
+  pending: "#6fa4e2",
+};
+const getFriendStatusColor = (status: "accepted" | "declined" | "pending") =>
+  STATUS_COLORS[status];
+
 export default function ProfileScreen() {
-  const { signOut } = useSession();
-  const [profile, setProfile] = useState<Profile | null>(null);
+  const { signOut, profile } = useSession();
+
+  const [friends, setFriends] = useState<Friendship[]>([]);
+  const [searchFriend, setSearchFriend] = useState("");
+
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+
+  const filteredFriends = useMemo<Friendship[]>(() => {
+    const normalizedSearch = (searchFriend ?? "").toLowerCase();
+
+    return friends.filter((item) => {
+      return (item.username ?? "").toLowerCase().includes(normalizedSearch);
+    });
+  }, [friends, searchFriend]);
 
   // URI of a newly picked, local image that has not been uploaded yet.
   const [selectedAvatarUri, setSelectedAvatarUri] = useState<string | null>(
     null,
   );
-  const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
 
   const normalizedUsername = username.trim();
 
   const usernameChanged =
-    profile !== null && normalizedUsername !== profile.username;
+    profile !== null && normalizedUsername !== profile.username.trim();
 
   const avatarChanged = selectedAvatarUri !== null;
   const passwordChanged = password.length > 0;
@@ -41,23 +58,16 @@ export default function ProfileScreen() {
   const hasUnsavedChanges = usernameChanged || avatarChanged || passwordChanged;
 
   useEffect(() => {
-    async function loadProfile() {
-      try {
-        const loadedProfile = await getMyProfile();
+    setUsername(profile?.username ?? "");
+  }, [profile?.username]);
 
-        setProfile(loadedProfile);
-        setUsername(loadedProfile.username);
-      } catch (error) {
-        const message =
-          error instanceof Error ? error.message : "Could not load profile.";
+  async function loadFriends() {
+    const friends = await getFriends();
+    setFriends(friends);
+  }
 
-        Alert.alert("Could not load profile", message);
-      } finally {
-        setIsLoading(false);
-      }
-    }
-
-    loadProfile();
+  useEffect(() => {
+    loadFriends();
   }, []);
 
   async function handleChooseAvatar() {
@@ -108,19 +118,13 @@ export default function ProfileScreen() {
           return;
         }
         await updateUserName(normalizedUsername);
-        setProfile({ ...profile, username: normalizedUsername });
+        setUsername(normalizedUsername);
         changes.push("Username");
       }
       if (selectedAvatarUri) {
-        const newAvatarPath = await updateAvatarPath(
+        await updateAvatarPath(
           selectedAvatarUri,
           profile.avatar_path, // Old path
-        );
-
-        setProfile((currentProfile) =>
-          currentProfile
-            ? { ...currentProfile, avatar_path: newAvatarPath }
-            : currentProfile,
         );
 
         setSelectedAvatarUri(null);
@@ -179,7 +183,38 @@ export default function ProfileScreen() {
     );
   }
 
-  if (isLoading) {
+  async function deleteFriend(friendshipId: string, friendUsername: string) {
+    Alert.alert(
+      `Remove ${friendUsername} as your friend?`,
+      "This permanently deletes your friendship.",
+      [
+        {
+          text: "Cancel",
+          style: "cancel",
+        },
+        {
+          text: "Delete friendship",
+          style: "destructive",
+          onPress: async () => {
+            try {
+              await handleDeleteFriend(friendshipId);
+              loadFriends();
+              Alert.alert(`Removed ${friendUsername} as your friend`);
+            } catch (error) {
+              const message =
+                error instanceof Error
+                  ? error.message
+                  : "Could not delete your friendship.";
+
+              Alert.alert("Could not delete account", message);
+            }
+          },
+        },
+      ],
+    );
+  }
+
+  if (isSaving) {
     return (
       <View
         style={{
@@ -223,7 +258,7 @@ export default function ProfileScreen() {
         </PressableScale>
       </View>
 
-      <View style={{ alignItems: "center", gap: 12 }}>
+      <View style={{ alignItems: "center", gap: 8 }}>
         <PressableScale
           onPress={handleChooseAvatar}
           disabled={isSaving}
@@ -268,6 +303,62 @@ export default function ProfileScreen() {
         </PressableScale>
       </View>
 
+      <View style={{}}>
+        <InkText variant="sectionLabel">FRIENDS</InkText>
+        {filteredFriends.length > 0 ? (
+          <ScrollView contentContainerStyle={{ flex: 1 }} horizontal={true}>
+            {filteredFriends.map((f) => (
+              <View
+                key={f.profile_id}
+                style={{
+                  marginVertical: 8,
+                  paddingLeft: 8,
+                  alignItems: "flex-start",
+                  position: "relative",
+                }}
+              >
+                <View style={{ flexDirection: "row" }}>
+                  <Avatar
+                    path={f.avatar_path}
+                    size={50}
+                    username={f.username ?? "User"}
+                  />
+                  <PressableScale
+                    style={{
+                      padding: 6,
+                    }}
+                    onPress={() =>
+                      deleteFriend(f.friendship_id, f.username ?? "user")
+                    }
+                  >
+                    <Ionicons name="trash" size={20} />
+                  </PressableScale>
+                </View>
+                <InkText variant="caption">{f.username}</InkText>
+                <InkText
+                  variant="caption"
+                  style={{
+                    fontSize: 10,
+                    color: getFriendStatusColor(f.friendship_status),
+                  }}
+                >
+                  {f.friendship_status}
+                </InkText>
+              </View>
+            ))}
+          </ScrollView>
+        ) : (
+          <InkText variant="caption">No friends</InkText>
+        )}
+      </View>
+
+      <Field
+        label="SEARCH FRIENDS"
+        placeholder="john"
+        value={searchFriend}
+        onChangeText={setSearchFriend}
+      />
+
       <Field
         label="USERNAME"
         value={username}
@@ -289,30 +380,32 @@ export default function ProfileScreen() {
         </InkText>
       )}
 
-      <PressableScale
-        onPress={handleSave}
-        disabled={isSaving || !hasUnsavedChanges}
-        style={{
-          alignItems: "center",
-          backgroundColor: "#000000",
-          opacity: isSaving || !hasUnsavedChanges ? 0.5 : 1,
-          padding: 16,
-        }}
-      >
-        <InkText variant="button" style={{ color: "#FFFFFF" }}>
-          {isSaving ? "SAVING..." : "SAVE PROFILE"}
-        </InkText>
-      </PressableScale>
-      <PressableScale
-        onPress={handleDeleteAccount}
-        style={{
-          alignItems: "center",
-          backgroundColor: "#df0000",
-          padding: 16,
-        }}
-      >
-        <InkText variant="button">DELETE MY ACCOUNT</InkText>
-      </PressableScale>
+      <View style={{ gap: 6 }}>
+        <PressableScale
+          onPress={handleSave}
+          disabled={isSaving || !hasUnsavedChanges}
+          style={{
+            alignItems: "center",
+            backgroundColor: "#000000",
+            opacity: isSaving || !hasUnsavedChanges ? 0.5 : 1,
+            padding: 16,
+          }}
+        >
+          <InkText variant="button" style={{ color: "#FFFFFF" }}>
+            {isSaving ? "SAVING..." : "SAVE PROFILE"}
+          </InkText>
+        </PressableScale>
+        <PressableScale
+          onPress={handleDeleteAccount}
+          style={{
+            alignItems: "center",
+            backgroundColor: "#df0000",
+            padding: 16,
+          }}
+        >
+          <InkText variant="button">DELETE MY ACCOUNT</InkText>
+        </PressableScale>
+      </View>
     </KeyboardAwareScrollView>
   );
 }
