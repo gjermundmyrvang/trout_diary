@@ -17,3 +17,11 @@ export type CreateCatchInput = {
 export type CatchDraft = {
   species: FishSpecies | null;
 };
+
+export type Comment = {
+  id: string;
+  body: string;
+  user_id: string;
+  comment_by: string;
+  comment_avatar: string | null;
+};
