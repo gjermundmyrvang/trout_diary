@@ -19,6 +19,7 @@ const defaultFABStyle: ViewStyle = {
   borderRadius: 25,
   alignItems: "center",
   justifyContent: "center",
+  borderWidth: 3,
 };
 
 export default function FAB({
