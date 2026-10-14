@@ -99,6 +99,7 @@ export async function addCatchComment(
   catchId: string,
   comment_by: string,
   text: string,
+  commentAvatar: string | null,
 ) {
   const body = text.trim();
 
@@ -128,6 +129,7 @@ export async function addCatchComment(
       user_id: user.id,
       comment_by: comment_by,
       body,
+      comment_avatar: commentAvatar,
     })
     .select()
     .single();
@@ -159,7 +161,8 @@ export async function getCatchComments(catchId: string) {
       body,
       created_at,
       user_id,
-      comment_by
+      comment_by,
+      comment_avatar
     `,
     )
     .eq("catch_id", catchId)

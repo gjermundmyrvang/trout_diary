@@ -1,17 +1,7 @@
 import { supabase } from "@/supabase/client";
+import { Profile } from "@/types/profile";
 import { deleteAvatar, uploadAvatar } from "./avatars";
 import { deleteAllCatchImages } from "./catchImages";
-
-export type Profile = {
-  id: string;
-  username: string;
-  avatar_path: string | null;
-};
-
-export type ProfileUpdates = {
-  username?: string;
-  avatarPath?: string | null;
-};
 
 export async function getMyProfile(): Promise<Profile> {
   const {

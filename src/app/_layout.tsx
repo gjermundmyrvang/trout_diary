@@ -73,7 +73,7 @@ function RootNavigator() {
 
       <Stack.Protected guard={!!session}>
         <Stack.Screen
-          name="comment-screen"
+          name="catch-stats"
           options={{
             headerShown: false,
             presentation: "formSheet",

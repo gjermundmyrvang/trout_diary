@@ -1,6 +1,5 @@
+import { FishSpecies } from "@/types/fish";
 import { create } from "zustand";
-
-import { type FishSpecies } from "@/constants/fishSpecies";
 
 type SpeciesSelectionStore = {
   species: FishSpecies | null;
