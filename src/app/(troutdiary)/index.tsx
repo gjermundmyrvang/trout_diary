@@ -1,5 +1,6 @@
 import { LottieAnimation } from "@/components/LottieAnimation";
 import { typography } from "@/constants/typography";
+import Ionicons from "@expo/vector-icons/Ionicons";
 import { router } from "expo-router";
 import { useEffect, useRef, useState } from "react";
 import { View } from "react-native";
@@ -15,6 +16,8 @@ export default function Homescreen() {
 
   const hasSwiped = useRef(false);
   const navigationTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const fishIcon = () => <Ionicons name="fish" size={28} color={"white"} />;
 
   useEffect(() => {
     return () => {
@@ -70,6 +73,7 @@ export default function Homescreen() {
           borderColor: "#000",
           borderRadius: 0,
         }}
+        thumbIconComponent={fishIcon}
         thumbIconBackgroundColor="#000"
         thumbIconBorderColor="#000"
         thumbIconStyles={{
