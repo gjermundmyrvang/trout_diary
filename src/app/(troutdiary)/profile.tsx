@@ -306,58 +306,62 @@ export default function ProfileScreen() {
       <View style={{}}>
         <InkText variant="sectionLabel">FRIENDS</InkText>
         {filteredFriends.length > 0 ? (
-          <ScrollView contentContainerStyle={{ flex: 1 }} horizontal={true}>
-            {filteredFriends.map((f) => (
-              <View
-                key={f.profile_id}
-                style={{
-                  marginVertical: 8,
-                  paddingLeft: 8,
-                  alignItems: "flex-start",
-                  position: "relative",
-                }}
-              >
-                <View style={{ flexDirection: "row" }}>
-                  <Avatar
-                    path={f.avatar_path}
-                    size={50}
-                    username={f.username ?? "User"}
-                  />
-                  <PressableScale
-                    style={{
-                      padding: 6,
-                    }}
-                    onPress={() =>
-                      deleteFriend(f.friendship_id, f.username ?? "user")
-                    }
-                  >
-                    <Ionicons name="trash" size={20} />
-                  </PressableScale>
-                </View>
-                <InkText variant="caption">{f.username}</InkText>
-                <InkText
-                  variant="caption"
+          <View>
+            <ScrollView contentContainerStyle={{ flex: 1 }} horizontal={true}>
+              {filteredFriends.map((f) => (
+                <View
+                  key={f.profile_id}
                   style={{
-                    fontSize: 10,
-                    color: getFriendStatusColor(f.friendship_status),
+                    marginVertical: 8,
+                    paddingLeft: 8,
+                    alignItems: "flex-start",
+                    position: "relative",
                   }}
                 >
-                  {f.friendship_status}
-                </InkText>
-              </View>
-            ))}
-          </ScrollView>
+                  <View style={{ flexDirection: "row" }}>
+                    <Avatar
+                      path={f.avatar_path}
+                      size={50}
+                      username={f.username ?? "User"}
+                    />
+                    <PressableScale
+                      style={{
+                        padding: 6,
+                      }}
+                      onPress={() =>
+                        deleteFriend(f.friendship_id, f.username ?? "user")
+                      }
+                    >
+                      <Ionicons name="trash" size={20} />
+                    </PressableScale>
+                  </View>
+                  <InkText variant="caption">{f.username}</InkText>
+                  <InkText
+                    variant="caption"
+                    style={{
+                      fontSize: 10,
+                      color: getFriendStatusColor(f.friendship_status),
+                    }}
+                  >
+                    {f.friendship_status}
+                  </InkText>
+                </View>
+              ))}
+            </ScrollView>
+            <Field
+              label="SEARCH FRIENDS"
+              placeholder="john"
+              value={searchFriend}
+              onChangeText={setSearchFriend}
+            />
+          </View>
         ) : (
-          <InkText variant="caption">No friends</InkText>
+          <View>
+            <InkText variant="caption">Currently no friends.</InkText>
+            <PressableScale></PressableScale>
+          </View>
         )}
       </View>
-
-      <Field
-        label="SEARCH FRIENDS"
-        placeholder="john"
-        value={searchFriend}
-        onChangeText={setSearchFriend}
-      />
 
       <Field
         label="USERNAME"
