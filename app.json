@@ -2,9 +2,9 @@
   "expo": {
     "name": "troutdiary",
     "slug": "troutdiary",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
+    "icon": "./assets/images/iconLight.png",
     "scheme": "troutdiary",
     "userInterfaceStyle": "light",
     "ios": {
