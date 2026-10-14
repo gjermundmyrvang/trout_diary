@@ -1,6 +1,7 @@
 import { InkText } from "@/components/InkText";
-import { type FishSpecies, fishSpecies } from "@/constants/fishSpecies";
+import { fishSpecies } from "@/constants/fishSpecies";
 import { useSpeciesSelectionStore } from "@/logic/useCatchStore";
+import { FishSpecies } from "@/types/fish";
 import { router } from "expo-router";
 import { PressableScale } from "pressto";
 import { FlatList, Image, View } from "react-native";
@@ -13,7 +14,7 @@ const SIDE_PADDING = 16;
 export default function SelectSpecies() {
   const setSpecies = useSpeciesSelectionStore((state) => state.setSpecies);
 
-  function handleSelect(species: FishSpecies, idx: number) {
+  function handleSelect(species: FishSpecies) {
     setSpecies(species);
     router.back();
   }
@@ -32,9 +33,9 @@ export default function SelectSpecies() {
           gap: CARD_GAP,
         }}
         decelerationRate="fast"
-        renderItem={({ item: species, index }) => (
+        renderItem={({ item: species }) => (
           <PressableScale
-            onPress={() => handleSelect(species, index)}
+            onPress={() => handleSelect(species)}
             accessibilityRole="button"
             accessibilityLabel={`Select ${species.commonName}`}
           >

@@ -54,6 +54,3 @@ export const fishSpecies = [
     image: require("@/assets/fish/sea-trout.png"),
   },
 ] as const;
-
-export type FishSpecies = (typeof fishSpecies)[number];
-export type FishSpeciesId = FishSpecies["id"];

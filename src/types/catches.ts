@@ -1,4 +1,4 @@
-import { FishSpecies } from "@/constants/fishSpecies";
+import { FishSpecies } from "./fish";
 
 export type CatchVisibility = "private" | "friends";
 

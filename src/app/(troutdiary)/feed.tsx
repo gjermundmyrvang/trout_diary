@@ -2,7 +2,8 @@ import CatchCard from "@/components/CatchCard";
 import FAB from "@/components/FAB";
 import { InkText } from "@/components/InkText";
 import { getCatchImageUrl } from "@/logic/catchImages";
-import { FeedCatch, FeedCatchWithImage, getFeedCatches } from "@/logic/feed";
+import { getFeedCatches } from "@/logic/feed";
+import { FeedCatch, FeedCatchWithImage } from "@/types/feed";
 import { router, useFocusEffect } from "expo-router";
 import { useCallback, useEffect, useState } from "react";
 import {

@@ -1,5 +1,6 @@
-import { getMyProfile, Profile } from "@/logic/profiles";
+import { getMyProfile } from "@/logic/profiles";
 import { supabase } from "@/supabase/client";
+import { Profile } from "@/types/profile";
 import type { Session, User } from "@supabase/supabase-js";
 import {
   createContext,

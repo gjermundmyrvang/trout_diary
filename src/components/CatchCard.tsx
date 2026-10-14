@@ -1,7 +1,7 @@
 import { fishSpecies } from "@/constants/fishSpecies";
 import { getCatchComments } from "@/logic/catches";
-import { FeedCatchWithImage } from "@/logic/feed";
 import { Comment } from "@/types/catches";
+import { FeedCatchWithImage } from "@/types/feed";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { router } from "expo-router";
 import { PressableScale } from "pressto";

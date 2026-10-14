@@ -1,6 +1,7 @@
 import { InkText } from "@/components/InkText";
 import { typography } from "@/constants/typography";
-import { FeedCatch, getFeedCatchById } from "@/logic/feed";
+import { getFeedCatchById } from "@/logic/feed";
+import { FeedCatch } from "@/types/feed";
 import { useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
 import { ActivityIndicator, Text, View } from "react-native";

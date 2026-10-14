@@ -1,7 +1,7 @@
 import { Avatar } from "@/components/Avatar";
 import Field from "@/components/Field";
 import { InkText } from "@/components/InkText";
-import { Friendship, getFriends, handleDeleteFriend } from "@/logic/friends";
+import { getFriends, handleDeleteFriend } from "@/logic/friends";
 import {
   deleteMyAccount,
   updateAvatarPath,
@@ -9,6 +9,7 @@ import {
   updateUserName,
 } from "@/logic/profiles";
 import { useSession } from "@/providers/AuthProvider";
+import { Friendship } from "@/types/friends";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import * as ImagePicker from "expo-image-picker";
 import { PressableScale } from "pressto";

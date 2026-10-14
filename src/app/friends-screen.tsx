@@ -3,12 +3,11 @@ import Field from "@/components/Field";
 import { InkText } from "@/components/InkText";
 import {
   fetchFriendSearchResults,
-  FriendRequest,
-  FriendSearchResult,
   getFriendRequest,
   handleAcceptRequest,
-  sendFriendRequest
+  sendFriendRequest,
 } from "@/logic/friends";
+import { FriendRequest, FriendSearchResult } from "@/types/friends";
 import { router } from "expo-router";
 import { PressableScale } from "pressto";
 import { useCallback, useEffect, useState } from "react";

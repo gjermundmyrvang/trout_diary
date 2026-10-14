@@ -1,5 +1,6 @@
-import { fishSpecies, type FishSpecies } from "@/constants/fishSpecies";
+import { fishSpecies } from "@/constants/fishSpecies";
 import { typography } from "@/constants/typography";
+import { FishSpecies } from "@/types/fish";
 import { Image, Pressable, ScrollView, Text, View } from "react-native";
 
 type SpeciesPickerProps = {

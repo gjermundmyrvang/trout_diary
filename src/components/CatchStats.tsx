@@ -1,5 +1,5 @@
 import { typography } from "@/constants/typography";
-import { FeedCatch } from "@/logic/feed";
+import { FeedCatch } from "@/types/feed";
 import { Text, View } from "react-native";
 import Svg, { Path, Text as SvgText } from "react-native-svg";
 import { InkText } from "./InkText";
