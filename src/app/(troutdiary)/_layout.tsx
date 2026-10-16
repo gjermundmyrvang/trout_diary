@@ -32,6 +32,16 @@ export default function TroutDiaryLayout() {
         />
         <NativeTabs.Trigger.Label>PROFILE</NativeTabs.Trigger.Label>
       </NativeTabs.Trigger>
+
+      <NativeTabs.Trigger name="settings">
+        <NativeTabs.Trigger.Icon
+          sf={{
+            default: "gear.circle",
+            selected: "gear.circle.fill",
+          }}
+        />
+        <NativeTabs.Trigger.Label>SETTINGS</NativeTabs.Trigger.Label>
+      </NativeTabs.Trigger>
     </NativeTabs>
   );
 }

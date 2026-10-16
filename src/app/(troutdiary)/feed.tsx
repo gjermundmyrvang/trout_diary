@@ -3,6 +3,7 @@ import FAB from "@/components/FAB";
 import { InkText } from "@/components/InkText";
 import { getCatchImageUrl } from "@/logic/catchImages";
 import { getFeedCatches } from "@/logic/feed";
+import { useSession } from "@/providers/AuthProvider";
 import { FeedCatch, FeedCatchWithImage } from "@/types/feed";
 import { router, useFocusEffect } from "expo-router";
 import { useCallback, useEffect, useState } from "react";
@@ -14,6 +15,8 @@ import {
 } from "react-native";
 
 export default function FeedScreen() {
+  const { profile } = useSession();
+
   const [feed, setFeed] = useState<FeedCatchWithImage[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -126,10 +129,9 @@ export default function FeedScreen() {
             style={{
               paddingTop: 16,
               paddingBottom: 16,
-              borderBottomWidth: 8,
             }}
           >
-            <CatchCard catchItem={catchItem} />
+            <CatchCard userId={profile?.id ?? null} catchItem={catchItem} />
           </View>
         ))}
       </ScrollView>

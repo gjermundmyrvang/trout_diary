@@ -1,7 +1,8 @@
 import { InkText } from "@/components/InkText";
 import { typography } from "@/constants/typography";
 import { getFeedCatchById } from "@/logic/feed";
-import { FeedCatch } from "@/types/feed";
+import { getGearSetById } from "@/logic/gears";
+import { FeedCatchWithGear } from "@/types/feed";
 import { useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
 import { ActivityIndicator, Text, View } from "react-native";
@@ -12,14 +13,19 @@ export const FISH_PATH =
 
 export default function CatchStatsSheet() {
   const { catchItemId } = useLocalSearchParams<{ catchItemId: string }>();
-  const [feedCatch, setFeedCatch] = useState<FeedCatch | null>(null);
+  const [feedCatch, setFeedCatch] = useState<FeedCatchWithGear | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function loadCatch() {
       try {
         const catchData = await getFeedCatchById(catchItemId);
-        setFeedCatch(catchData as FeedCatch);
+        const gearSet = await getGearSetById(catchData.gear_set_id);
+        const catchWithGear = {
+          ...catchData,
+          gearSet,
+        };
+        setFeedCatch(catchWithGear as FeedCatchWithGear);
       } catch (error) {
         console.warn("Failed to fetch catch by id", error);
       } finally {
@@ -88,6 +94,12 @@ export default function CatchStatsSheet() {
   const ticks = Array.from({ length: max / step + 1 }, (_, i) => i * step);
   const pct = (t: number) => `${(t / max) * 100}%` as const;
 
+  const gearSet = feedCatch.gearSet;
+
+  const hasCatchDetails = Boolean(
+    gearSet || feedCatch.lure_or_fly || feedCatch.location_name,
+  );
+
   return (
     <View
       style={{
@@ -99,7 +111,7 @@ export default function CatchStatsSheet() {
       }}
     >
       <View style={{ width: "100%", flex: 1 }}>
-        <InkText variant="sectionLabel">SIZE AND WEIGHT</InkText>
+        <InkText variant="formInput">SIZE AND WEIGHT</InkText>
         <View
           style={{
             flexDirection: "row",
@@ -170,6 +182,65 @@ export default function CatchStatsSheet() {
           ))}
         </View>
       </View>
+      {hasCatchDetails && (
+        <View style={{ marginTop: 24, gap: 14 }}>
+          <InkText variant="formInput">CATCH DETAILS</InkText>
+
+          {feedCatch.location_name ? (
+            <View style={{ gap: 2 }}>
+              <InkText variant="sectionLabel" style={{ opacity: 0.6 }}>
+                LOCATION
+              </InkText>
+              <InkText variant="caption">{feedCatch.location_name}</InkText>
+            </View>
+          ) : null}
+
+          {gearSet && (
+            <View
+              style={{
+                padding: 12,
+                gap: 6,
+                borderWidth: 1,
+                borderColor: "#E1E1E1",
+                backgroundColor: "#FAFAFA",
+              }}
+            >
+              <InkText variant="caption" style={{ opacity: 0.6 }}>
+                GEAR SET
+              </InkText>
+
+              <InkText variant="caption">{gearSet.name}</InkText>
+
+              {gearSet.rod ? (
+                <InkText variant="caption" style={{ opacity: 0.7 }}>
+                  Rod: {gearSet.rod}
+                </InkText>
+              ) : null}
+
+              {gearSet.reel ? (
+                <InkText variant="caption" style={{ opacity: 0.7 }}>
+                  Reel: {gearSet.reel}
+                </InkText>
+              ) : null}
+
+              {gearSet.line ? (
+                <InkText variant="caption" style={{ opacity: 0.7 }}>
+                  Line: {gearSet.line}
+                </InkText>
+              ) : null}
+            </View>
+          )}
+
+          {feedCatch.lure_or_fly ? (
+            <View style={{ gap: 2 }}>
+              <InkText variant="sectionLabel" style={{ opacity: 0.6 }}>
+                {feedCatch.lure_or_fly_type === "fly" ? "FLY" : "LURE"}
+              </InkText>
+              <InkText variant="caption">{feedCatch.lure_or_fly}</InkText>
+            </View>
+          ) : null}
+        </View>
+      )}
     </View>
   );
 }

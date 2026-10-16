@@ -47,7 +47,7 @@ export const typography = {
 
   formInput: {
     fontFamily: fontFamily.mono,
-    fontSize: 16,
+    fontSize: 18,
     lineHeight: 22,
   },
 

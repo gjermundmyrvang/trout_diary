@@ -1,42 +1,24 @@
-import { fishSpecies } from "@/constants/fishSpecies";
 import { getCatchComments } from "@/logic/catches";
+import { formatCaughtAt, getFishIllustration } from "@/logic/utils";
 import { Comment } from "@/types/catches";
 import { FeedCatchWithImage } from "@/types/feed";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { router } from "expo-router";
 import { PressableScale } from "pressto";
 import { useEffect, useState } from "react";
-import { Image, ImageSourcePropType, View } from "react-native";
+import { View } from "react-native";
 import { Avatar } from "./Avatar";
 import CatchSocial from "./CatchSocial";
 import Comments from "./Comments";
 import { InkText } from "./InkText";
+import { ZoomableImage } from "./ZoomableImage";
 
 type CatchCardProps = {
+  userId: string | null;
   catchItem: FeedCatchWithImage;
 };
 
-const defaultFishIllustration = require("@/assets/fish/brown-trout.png");
-
-function getFishIllustration(troutType: string): ImageSourcePropType {
-  const species = fishSpecies.find(
-    (species) => species.commonName === troutType,
-  );
-
-  return species?.image ?? defaultFishIllustration;
-}
-
-function formatCaughtAt(caughtAt: string): string {
-  return new Intl.DateTimeFormat("en-GB", {
-    day: "numeric",
-    month: "short",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  }).format(new Date(caughtAt));
-}
-
-export default function CatchCard({ catchItem }: CatchCardProps) {
+export default function CatchCard({ userId, catchItem }: CatchCardProps) {
   const fallbackImage = getFishIllustration(catchItem.trout_type);
 
   const [comments, setComments] = useState<Comment[]>([]);
@@ -58,6 +40,23 @@ export default function CatchCard({ catchItem }: CatchCardProps) {
   useEffect(() => {
     loadComments();
   }, []);
+
+  function handleNavigateToFriend(friendId: string) {
+    const isYou = friendId === userId;
+
+    if (isYou) {
+      router.push("/(troutdiary)/profile");
+      return;
+    }
+
+    router.push({
+      pathname: "/friend-profile",
+      params: {
+        userId: friendId,
+      },
+    });
+  }
+
   return (
     <View
       key={catchItem.id}
@@ -75,20 +74,32 @@ export default function CatchCard({ catchItem }: CatchCardProps) {
           paddingHorizontal: 16,
         }}
       >
-        <Avatar
-          username={catchItem.username}
-          path={catchItem.avatar_path}
-          size={50}
-        />
-        <View style={{ flex: 1, gap: 3 }}>
-          <InkText variant="sectionLabel">
-            {catchItem.username.toUpperCase()}
-          </InkText>
+        <PressableScale
+          style={{
+            flexDirection: "row",
+            alignItems: "flex-start",
+            gap: 6,
+          }}
+          onPress={() => handleNavigateToFriend(catchItem.user_id)}
+        >
+          <Avatar
+            username={catchItem.username}
+            path={catchItem.avatar_path}
+            size={50}
+          />
 
-          <InkText variant="caption">
-            {formatCaughtAt(catchItem.caught_at)}
-          </InkText>
-        </View>
+          <View>
+            {catchItem.username && (
+              <InkText variant="sectionLabel">
+                {catchItem.username.toUpperCase()}
+              </InkText>
+            )}
+
+            <InkText variant="caption">
+              {formatCaughtAt(catchItem.caught_at)}
+            </InkText>
+          </View>
+        </PressableScale>
 
         {catchItem.location_name && (
           <View
@@ -121,7 +132,7 @@ export default function CatchCard({ catchItem }: CatchCardProps) {
           padding: 0,
         }}
       >
-        <Image
+        <ZoomableImage
           source={
             catchItem.imageUrl ? { uri: catchItem.imageUrl } : fallbackImage
           }

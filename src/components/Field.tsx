@@ -1,11 +1,11 @@
 import { typography } from "@/constants/typography";
 import { useState } from "react";
-import { TextStyle, View } from "react-native";
+import { StyleProp, TextStyle, View } from "react-native";
 import { TextInput } from "react-native-gesture-handler";
 import { InkText } from "./InkText";
 
 type FieldProps = {
-  label: string;
+  label?: string;
   value: string;
   placeholder: string;
   onChangeText: (value: string) => void;
@@ -15,6 +15,7 @@ type FieldProps = {
   font?: TextStyle;
   autoComplete?: any | undefined;
   password?: boolean;
+  style?: StyleProp<TextStyle>;
 };
 
 export default function Field({
@@ -28,13 +29,14 @@ export default function Field({
   font = typography.formInput,
   autoComplete = undefined,
   password = false,
+  style,
 }: FieldProps) {
   const [focused, setFocused] = useState(false);
   const borderColor = focused ? "#000" : "#ccc";
 
   return (
     <View style={{ gap: 8 }}>
-      <InkText variant="sectionLabel">{label}</InkText>
+      {label && <InkText variant="sectionLabel">{label}</InkText>}
 
       <TextInput
         value={value}
@@ -52,6 +54,7 @@ export default function Field({
             padding: 12,
             minHeight: minHeight,
           },
+          style,
         ]}
         autoCapitalize="none"
         autoComplete={autoComplete}
