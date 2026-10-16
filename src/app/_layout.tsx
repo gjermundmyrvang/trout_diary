@@ -86,6 +86,9 @@ function RootNavigator() {
         />
       </Stack.Protected>
 
+      <Stack.Protected guard={!!session}>
+        <Stack.Screen name="catch" options={{ headerShown: false }} />
+      </Stack.Protected>
       <Stack.Protected guard={!session}>
         <Stack.Screen name="signin" options={{ headerShown: false }} />
       </Stack.Protected>
