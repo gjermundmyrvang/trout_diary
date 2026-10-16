@@ -62,7 +62,17 @@ export function SessionProvider({ children }: PropsWithChildren) {
 
       if (isMounted) {
         setSession(data.session);
-        loadProfile();
+
+        if (data.session) {
+          try {
+            await loadProfile();
+          } catch (error) {
+            console.warn("Could not load profile:", error);
+          }
+        } else {
+          setProfile(null);
+        }
+
         setIsLoading(false);
       }
     }
@@ -121,6 +131,7 @@ export function SessionProvider({ children }: PropsWithChildren) {
   }
 
   async function signOut() {
+    setProfile(null);
     const { error } = await supabase.auth.signOut();
 
     if (error) {
@@ -141,7 +152,7 @@ export function SessionProvider({ children }: PropsWithChildren) {
       verifyOTP,
       signOut,
     }),
-    [session, isLoading],
+    [session, profile, isLoading],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
