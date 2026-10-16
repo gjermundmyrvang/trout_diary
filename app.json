@@ -2,7 +2,7 @@
   "expo": {
     "name": "troutdiary",
     "slug": "troutdiary",
-    "version": "1.0.1",
+    "version": "1.0.2",
     "orientation": "portrait",
     "icon": "./assets/images/iconLight.png",
     "scheme": "troutdiary",
@@ -37,13 +37,13 @@
         "expo-splash-screen",
         {
           "image": "./assets/images/splash.png",
-          "imageWidth": 76
+          "imageWidth": 200
         }
       ],
       [
         "expo-image-picker",
         {
-          "photosPermission": "Allow $(PRODUCT_NAME) to access your photos so you can choose a profile picture."
+          "photosPermission": "Allow $(PRODUCT_NAME) to access your photos so you can choose a profile picture and or photos of your catches."
         }
       ]
     ],
