@@ -87,8 +87,28 @@ function RootNavigator() {
       </Stack.Protected>
 
       <Stack.Protected guard={!!session}>
+        <Stack.Screen
+          name="gear-screen"
+          options={{
+            headerShown: false,
+            presentation: "formSheet",
+            sheetAllowedDetents: "fitToContents",
+            sheetGrabberVisible: true,
+            contentStyle: {
+              backgroundColor: "#FAFAFA",
+            },
+          }}
+        />
+      </Stack.Protected>
+
+      <Stack.Protected guard={!!session}>
         <Stack.Screen name="catch" options={{ headerShown: false }} />
       </Stack.Protected>
+
+      <Stack.Protected guard={!!session}>
+        <Stack.Screen name="friend-profile" options={{ headerShown: false }} />
+      </Stack.Protected>
+
       <Stack.Protected guard={!session}>
         <Stack.Screen name="signin" options={{ headerShown: false }} />
       </Stack.Protected>
