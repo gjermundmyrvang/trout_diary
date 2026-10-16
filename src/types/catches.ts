@@ -12,6 +12,9 @@ export type CreateCatchInput = {
   description?: string | null;
   visibility: CatchVisibility;
   caughtAt?: Date;
+  gearSetId: string | null;
+  lureOrFly: string | null;
+  lureOrFlyType: "lure" | "fly" | "bait" | "other" | null;
 };
 
 export type CatchDraft = {

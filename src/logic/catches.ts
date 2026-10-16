@@ -12,6 +12,9 @@ export async function createCatch(input: CreateCatchInput) {
     p_description: input.description ?? null,
     p_visibility: input.visibility,
     p_caught_at: (input.caughtAt ?? new Date()).toISOString(),
+    p_gear_set_id: input.gearSetId ?? null,
+    p_lure_or_fly: input.lureOrFly ?? null,
+    p_lure_or_fly_type: input.lureOrFlyType ?? null,
   });
 
   if (error) {
@@ -173,4 +176,15 @@ export async function getCatchComments(catchId: string) {
   }
 
   return data;
+}
+
+export async function deleteCatch(catchId: string) {
+  const { data: deleted, error } = await supabase.rpc("delete_catch", {
+    p_catch_id: catchId,
+  });
+
+  if (error) throw error;
+  if (!deleted) {
+    // Catch not found or not owned by the current user
+  }
 }
