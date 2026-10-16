@@ -38,46 +38,26 @@ export function SessionProvider({ children }: PropsWithChildren) {
   const [session, setSession] = useState<Session | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  // The user id whose profile fetch has finished (successfully or not)
+  const [settledProfileUserId, setSettledProfileUserId] = useState<
+    string | null
+  >(null);
 
-  async function loadProfile() {
-    try {
-      const loadedProfile = await getMyProfile();
-      setProfile(loadedProfile);
-    } catch (error) {
-      const message =
-        error instanceof Error ? error.message : "Could not load profile.";
-      throw new Error(message);
-    }
-  }
+  const userId = session?.user.id ?? null;
 
   useEffect(() => {
     let isMounted = true;
 
-    async function restoreSession() {
-      const { data, error } = await supabase.auth.getSession();
+    supabase.auth.getSession().then(({ data, error }) => {
+      if (!isMounted) return;
 
       if (error) {
         console.warn("Could not restore Supabase session:", error.message);
       }
 
-      if (isMounted) {
-        setSession(data.session);
-
-        if (data.session) {
-          try {
-            await loadProfile();
-          } catch (error) {
-            console.warn("Could not load profile:", error);
-          }
-        } else {
-          setProfile(null);
-        }
-
-        setIsLoading(false);
-      }
-    }
-
-    restoreSession();
+      setSession(data.session);
+      setIsLoading(false);
+    });
 
     const {
       data: { subscription },
@@ -91,6 +71,36 @@ export function SessionProvider({ children }: PropsWithChildren) {
       subscription.unsubscribe();
     };
   }, []);
+
+  useEffect(() => {
+    if (!userId) {
+      setProfile(null);
+      setSettledProfileUserId(null);
+      return;
+    }
+
+    let cancelled = false;
+    setProfile(null); // avoiding showing a previous user's profile
+
+    getMyProfile()
+      .then((loadedProfile) => {
+        if (!cancelled) setProfile(loadedProfile);
+      })
+      .catch((error) => {
+        console.warn("Could not load profile:", error);
+      })
+      .finally(() => {
+        if (!cancelled) setSettledProfileUserId(userId);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [userId]);
+
+  const isProfileLoading = userId !== null && settledProfileUserId !== userId;
+
+  const authLoading = isProfileLoading || isLoading;
 
   async function signInWithOTP(email: string) {
     const { error } = await supabase.auth.signInWithOtp({
@@ -131,7 +141,6 @@ export function SessionProvider({ children }: PropsWithChildren) {
   }
 
   async function signOut() {
-    setProfile(null);
     const { error } = await supabase.auth.signOut();
 
     if (error) {
@@ -144,7 +153,7 @@ export function SessionProvider({ children }: PropsWithChildren) {
   const value = useMemo(
     () => ({
       session,
-      isLoading,
+      isLoading: authLoading,
       user: session?.user ?? null,
       profile: profile ?? null,
       signInWithOTP,
@@ -152,7 +161,7 @@ export function SessionProvider({ children }: PropsWithChildren) {
       verifyOTP,
       signOut,
     }),
-    [session, profile, isLoading],
+    [session, profile, authLoading],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
