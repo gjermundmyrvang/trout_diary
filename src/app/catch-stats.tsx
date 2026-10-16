@@ -195,7 +195,7 @@ export default function CatchStatsSheet() {
             </View>
           ) : null}
 
-          {gearSet ? (
+          {gearSet && (
             <View
               style={{
                 padding: 12,
@@ -229,11 +229,11 @@ export default function CatchStatsSheet() {
                 </InkText>
               ) : null}
             </View>
-          ) : null}
+          )}
 
           {feedCatch.lure_or_fly ? (
             <View style={{ gap: 2 }}>
-              <InkText variant="caption" style={{ opacity: 0.6 }}>
+              <InkText variant="sectionLabel" style={{ opacity: 0.6 }}>
                 {feedCatch.lure_or_fly_type === "fly" ? "FLY" : "LURE"}
               </InkText>
               <InkText variant="caption">{feedCatch.lure_or_fly}</InkText>
