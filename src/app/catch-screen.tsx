@@ -1,17 +1,20 @@
 import Field from "@/components/Field";
+import GearSetCard from "@/components/GearSetCard";
 import { InkText } from "@/components/InkText";
 import { typography } from "@/constants/typography";
 import { createCatch } from "@/logic/catches";
 import { deleteCatchImage, uploadCatchImage } from "@/logic/catchImages";
+import { getUserGearSets } from "@/logic/gears";
 import { useSpeciesSelectionStore } from "@/logic/useCatchStore";
 import { useSession } from "@/providers/AuthProvider";
 import { CatchVisibility } from "@/types/catches";
+import { GearSet } from "@/types/gear";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import * as ImagePicker from "expo-image-picker";
 import { router } from "expo-router";
 import { PressableScale } from "pressto";
-import { useState } from "react";
-import { Alert, Image, View } from "react-native";
+import { useEffect, useState } from "react";
+import { Alert, Image, ScrollView, View } from "react-native";
 import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
 
 export default function CatchScreen() {
@@ -27,6 +30,31 @@ export default function CatchScreen() {
   const [isSaving, setIsSaving] = useState(false);
 
   const [photoUri, setPhotoUri] = useState<string | null>(null);
+
+  const [gearSets, setGearSets] = useState<GearSet[]>([]);
+  const [selectedGearSetId, setSelectedGearSetId] = useState<string | null>(
+    null,
+  );
+  const [lureOrFly, setLureOrFly] = useState("");
+  const [lureOrFlyType, setLureOrFlyType] = useState<"lure" | "fly" | null>(
+    null,
+  );
+
+  useEffect(() => {
+    async function loadGearSets() {
+      try {
+        const loadedGearSets = await getUserGearSets();
+        setGearSets(loadedGearSets);
+      } catch (error) {
+        const message =
+          error instanceof Error ? error.message : "Could not load gear sets.";
+
+        Alert.alert("Could not load gear sets", message);
+      }
+    }
+
+    void loadGearSets();
+  }, []);
 
   async function handlePickPhoto() {
     const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -101,6 +129,9 @@ export default function CatchScreen() {
           locationName,
           description,
           visibility,
+          gearSetId: selectedGearSetId,
+          lureOrFly: lureOrFly.trim() || null,
+          lureOrFlyType,
         });
       } catch (error) {
         if (imagePath) {
@@ -115,6 +146,9 @@ export default function CatchScreen() {
       setLocationName("");
       setDescription("");
       setVisibility("friends");
+      setLureOrFly("");
+      setLureOrFlyType(null);
+      setSelectedGearSetId(null);
 
       reset();
 
@@ -246,6 +280,86 @@ export default function CatchScreen() {
           <InkText variant="caption">REMOVE PHOTO</InkText>
         </PressableScale>
       )}
+
+      <InkText variant="sectionLabel">CHOOSE GEAR SET</InkText>
+      {gearSets.length > 0 ? (
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={{
+            gap: 10,
+            paddingRight: 24,
+          }}
+        >
+          {gearSets.map((gearSet) => (
+            <GearSetCard
+              key={gearSet.id}
+              gearSet={gearSet}
+              width={170}
+              selected={selectedGearSetId === gearSet.id}
+              onPress={(selectedGearSet) => {
+                setSelectedGearSetId((currentId) =>
+                  currentId === selectedGearSet.id ? null : selectedGearSet.id,
+                );
+              }}
+            />
+          ))}
+        </ScrollView>
+      ) : (
+        <PressableScale
+          onPress={() => router.push("/gear-screen")}
+          accessibilityRole="button"
+          accessibilityLabel="Add a gear set"
+          style={{
+            alignItems: "center",
+            justifyContent: "center",
+            borderWidth: 1,
+            borderStyle: "dashed",
+            borderColor: "#000",
+            padding: 16,
+            gap: 6,
+          }}
+        >
+          <Ionicons name="add" size={26} />
+          <InkText variant="caption">ADD GEAR SET</InkText>
+        </PressableScale>
+      )}
+      <InkText variant="sectionLabel">LURE OR FLY</InkText>
+
+      <View style={{ flexDirection: "row", gap: 12 }}>
+        <VisibilityButton
+          label="LURE"
+          selected={lureOrFlyType === "lure"}
+          onPress={() =>
+            setLureOrFlyType((currentType) =>
+              currentType === "lure" ? null : "lure",
+            )
+          }
+        />
+
+        <VisibilityButton
+          label="FLY"
+          selected={lureOrFlyType === "fly"}
+          onPress={() =>
+            setLureOrFlyType((currentType) =>
+              currentType === "fly" ? null : "fly",
+            )
+          }
+        />
+      </View>
+
+      <Field
+        label={lureOrFlyType === "fly" ? "FLY" : "LURE / FLY"}
+        value={lureOrFly}
+        onChangeText={setLureOrFly}
+        placeholder={
+          lureOrFlyType === "fly"
+            ? "e.g. Woolly Bugger"
+            : lureOrFlyType === "lure"
+              ? "e.g. Mepps Aglia"
+              : "e.g. Woolly Bugger or Mepps Aglia"
+        }
+      />
 
       <Field
         label="WEIGHT (GRAMS)"
